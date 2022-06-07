@@ -42,17 +42,6 @@ class MapBox extends React.Component {
                                 .addTo(map);
             coordinates.push([plane.longitude, plane.latitude]);
           });
-
-          // if (i < coordinates.length) {
-          //   // clear prev markers 
-          //   if (currentMarkers !== null) {
-          //     for (var j = currentMarkers.length - 1; j >= 0; j--) {
-          //       currentMarkers[j].remove();
-          //     }
-          //   }
-              
-          //   i++;
-          // }
         }, 1000);
     }
 

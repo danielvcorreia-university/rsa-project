@@ -1,7 +1,6 @@
 import './App.css';
 import TableDubaiAirplanes from './components/TableDubaiAirplanes';
 import MapAirplanes from './components/MapAirplanes';
-import NavBar from './components/NavBar';
 import Hero from './components/Hero';
 import TableDubaiArrivalAirplanes from './components/TableDubaiArrivalAirplanes';
 import TableDubaiDepartureAirplanes from './components/TableDubaiDepartureAirplanes';

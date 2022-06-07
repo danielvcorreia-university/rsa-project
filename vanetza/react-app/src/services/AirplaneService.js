@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 const AIRPLANES_DUBAI_API_URL = 'http://192.168.160.87:20004/data'
 const MOST_POPULAR_ORIGIN_COUNTRY_API_URL = 'http://192.168.160.87:20004/mostpopularorigincountry'

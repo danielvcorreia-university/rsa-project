@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import '../App.css';
-import AirplaneService from '../services/AirplaneService';
+import BusSafePassageService from '../services/BusSafePassageService';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuaWVsdmNvcnJlaWEiLCJhIjoiY2tpa2xodTViMGIyZjJxcGtsNHZkYnU4NCJ9.xk7aj9lSbWNLpvwM_HmdEg';
 
@@ -26,7 +26,7 @@ class MapAirplanes extends React.Component {
         var currentMarkers = [];
 
         map.on('load', function() {
-            AirplaneService.get_dubai_airplanes().then((response) => {
+            BusSafePassageService.update_car().then((response) => {
                 if (currentMarkers !== null) {
                     for (var i = currentMarkers.length - 1; i >= 0; i--) {
                         currentMarkers[i].remove();
@@ -52,7 +52,7 @@ class MapAirplanes extends React.Component {
 
             window.setInterval(function () {
 
-                AirplaneService.get_dubai_airplanes().then((response) => {
+                BusSafePassageService.update_car().then((response) => {
                     if (currentMarkers !== null) {
                         for (var i = currentMarkers.length - 1; i >= 0; i--) {
                             currentMarkers[i].remove();

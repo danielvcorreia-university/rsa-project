@@ -11,6 +11,7 @@ RUN npm install --silent
 RUN npm install react-scripts@4.0.3 -g --silent
 RUN npm install axios@0.21.1
 RUN npm install bootstrap@4.6.0 --save
+RUN npm install react-paho-mqtt@1.0.1 --silent
 
 # add react-app
 COPY . ./

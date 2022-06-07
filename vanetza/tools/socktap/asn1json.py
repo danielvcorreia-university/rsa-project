@@ -1,7 +1,12 @@
+# To run:
+# python3 asn1json.py cpp > asn1json.cpp
+# python3 asn1json.py hpp > asn1json.hpp
+
 from email import header
 import asn1tools
 from datetime import datetime
 import time, sys
+from math import pow
 
 ######
 
@@ -14,6 +19,34 @@ default_types = ["INTEGER", "BOOLEAN", "ENUMERATED", "BIT STRING", "IA5String",
 
 ######
 
+transformation = {
+    "Latitude": (pow(10,7),[900000001]),
+    "Longitude": (pow(10,7),[1800000001]),
+    "AltitudeValue": (pow(10,2),[800001]),
+#    "AltitudeConfidence": (pow(10,2),[14,15]),
+    "HeadingValue": (pow(10,1),[3601]),
+    "HeadingConfidence": (pow(10,1),[126,127]),
+    "SpeedValue": (pow(10,2),[16383]),
+    "SpeedConfidence": (pow(10,2),[126,127]),
+    "AccelerationConfidence": (pow(10,1),[102]),
+    "VehicleLengthValue": (pow(10,1),[1023]),
+    "VehicleWidth": (pow(10,1),[61,62]),
+    "LongitudinalAccelerationValue": (pow(10,1),[161]),
+    "YawRateValue": (pow(10,2),[32767]),
+    "DistanceValue": (pow(10,2),[]),
+    "DistanceConfidence": (pow(10,2),[101,102]),
+    "SpeedValueExtended": (pow(10,2),[16383]),
+    "LateralAccelerationValue": (pow(10,1),[161]),
+    "LongitudinalAccelerationValue": (pow(10,1),[161]),
+    "VerticalAccelerationValue": (pow(10,1),[161]),
+    "ObjectDimensionValue": (pow(10,1),[]),
+    "WGS84AngleValue": (pow(10,1),[3601]),
+    "CartesianAngleValue": (pow(10,1),[3601]),
+    "SensorHeight": (pow(10,2),[]),
+    "SemiRangeLength": (pow(10,1),[]),
+    "Radius": (pow(10,1),[])
+}
+
 printed = ["PhoneNumber", "VehicleHeight", "PreemptPriorityList", "WMInumber", "VDS",
            "RegionalExtension", "TemporaryID", "DescriptiveName", "MessageFrame", "OpeningDaysHours"]
 
@@ -23,9 +56,11 @@ include = ["NodeXY", "VehicleID", "TransitVehicleStatus", "TransmissionAndSpeed"
 add_t = ["ObjectClass", "VehicleID", "VehicleLength", "VerticalAcceleration", "DeltaReferencePosition", "ItsPduHeader", "PtActivationData", "MapData",
          "NodeAttributeSetXY", "NodeXY", "DigitalMap", "TransmissionAndSpeed", "Position3D", "IntersectionAccessPoint", "ComputedLane", "AdvisorySpeedList", "ConnectionManeuverAssist", "DataParameters", "EnabledLaneList", "PerceivedObjectContainer"]
 
-ignore_member_names = ['regional', 'shadowingApplies', 'expiryTime', 'validityDuration']
+ignore_member_names = ['regional', 'shadowingApplies', 'expiryTime']
 ignore_member_types = ["PhoneNumber", "OpeningDaysHours", "MessageFrame", "DescriptiveName", "RegionalExtension", "Iso3833VehicleType",
                                                                                                 "REG-EXT-ID-AND-TYPE.&id", "REG-EXT-ID-AND-TYPE.&Type", 'MESSAGE-ID-AND-TYPE.&id', 'MESSAGE-ID-AND-TYPE.&Type', 'PreemptPriorityList', "WMInumber", "VDS", "TemporaryID"]
+
+treat_as_optional = ["validityDuration"]
 
 capitalize_first_letter = ["class", "long"]
 
@@ -48,6 +83,10 @@ class ASN1Sequence:
         self.parent_name = parent_name
         self.parent_file = parent_file
 
+        for m in self.members:
+            if m["name"] in treat_as_optional:
+                m["optional"] = True
+
     def header_str(self):
         return """
 /*
@@ -68,12 +107,12 @@ void from_json(const json& j, """ + (self.name.replace("-", "_") + "_t" if self.
 */
 
 void to_json(json& j, const """ + (self.name.replace("-", "_") + "_t" if self.name in add_t else self.name.replace("-", "_")) + """& p) {
-    j = json{""" + ', '.join(['{"' + m["name"] + '", ' + ('to_json_' + m["type"].replace("-", "_") + '(' if m["type"] in bitstrings else '') + '(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')' + (')' if m["type"] in bitstrings else '') + '}' for m in self.members if "optional" not in m or not m["optional"]]) + """};
-    """ + '\n    '.join(['if (p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ' != 0) j[\"' + m["name"] + '\"] = ' + ('to_json_' + m["type"] + '(' if m["type"] in bitstrings else '') + '*(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')' + (')' if m["type"] in bitstrings else '') + ';' for m in self.members if "optional" in m and m["optional"]]) + """
+    j = json{""" + ', '.join(['{"' + m["name"] + '", ' + ('to_json_' + m["type"].replace("-", "_") + '(' if m["type"] in bitstrings else '') + ((((("(" + " || ".join([('*' if "optional" in m and m["optional"] else '') + ('(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ") == " + str(n)) for n in transformation[m["type"]][1]])) + ") ? " + ('(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')') + " : ") if len(transformation[m["type"]][1]) > 0 else "") + (('(double)(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')') + (" / " + str(float(transformation[m["type"]][0])))) ) if m["type"] in transformation else ('(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')')) + (')' if m["type"] in bitstrings else '') + '}' for m in self.members if "optional" not in m or not m["optional"]]) + """};
+    """ + '\n    '.join(['if (p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ' != 0) j[\"' + m["name"] + '\"] = ' + ('to_json_' + m["type"] + '(' if m["type"] in bitstrings else '') + (((((("(" + " && ".join([('*' if "optional" in m and m["optional"] else '') + ('(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ") != " + str(n)) for n in transformation[m["type"]][1]])) + ") ? " + ('*(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')') + " : ") if len(transformation[m["type"]][1]) > 0 else "") + (('(double) *(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')') + (" / " + str(float(transformation[m["type"]][0])))) ) if m["type"] in transformation else ('*(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ')'))) + (')' if m["type"] in bitstrings else '') + ';' for m in self.members if "optional" in m and m["optional"]]) + """
 }
 
 void from_json(const json& j, """ + (self.name.replace("-", "_") + "_t" if self.name in add_t else self.name.replace("-", "_")) + """& p) {
-    """ + '\n    '.join([(('if (j.contains("' + m["name"] + '")) { p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ' = vanetza::asn1::allocate<' + m["type"].replace("-", "_") + '_t>(); ') if "optional" in m and m["optional"] else '') + 'j.at("' + m["name"] + '").get_to(' + ('*' if "optional" in m and m["optional"] else '') + '(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '));' + (' } ' if "optional" in m and m["optional"] else '') + ('\n    else { ' + 'p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '=nullptr; }' if "optional" in m and m["optional"] else '') for m in self.members if m["type"] not in bitstrings]) + """
+    """ + '\n    '.join([(("double " + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + "; ") if m["type"] in transformation else "") + (('if (j.contains("' + m["name"] + '")) { p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ' = vanetza::asn1::allocate<' + m["type"].replace("-", "_") + '_t>(); ') if "optional" in m and m["optional"] else '') + 'j.at("' + m["name"] + '").get_to(' + ((('*' if "optional" in m and m["optional"] else '') + '(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '')) if m["type"] not in transformation else "(") + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '));' + ((' *' if "optional" in m and m["optional"] else ' ') + '(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ") =" + ((" (" + " && ".join([(("(" + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title())).replace("-", "_") + ") != " + str(n)) for n in transformation[m["type"]][1]]) + ")" if len(transformation[m["type"]][1]) > 0 else "") + (" ? " if len(transformation[m["type"]][1]) > 0 else " ") + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + " * " + str(int(transformation[m["type"]][0])) + (" : " + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") if len(transformation[m["type"]][1]) > 0 else "") + ";") if m["type"] in transformation else "") + (' } ' if "optional" in m and m["optional"] else '') + ('\n    else { ' + 'p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '=nullptr; }' if "optional" in m and m["optional"] else '') for m in self.members if m["type"] not in bitstrings]) + """
     """ + '\n    '.join([(('if (j.contains("' + m["name"] + '")) { p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + ' = vanetza::asn1::allocate<' + m["type"].replace("-", "_") + '_t>(); ') if "optional" in m and m["optional"] else '') + 'from_json_' + m["type"].replace("-", "_") + '(j["' + m["name"] + '"],' + ('*' if "optional" in m and m["optional"] else '') + '(p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '));' + (' } ' if "optional" in m and m["optional"] else '') + ('\n    else { ' + 'p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '=nullptr; }' if "optional" in m and m["optional"] else '') for m in self.members if m["type"] in bitstrings]) + """
     """ + '\n    '.join(['p.' + ('choice.' if self.definition["type"] == "CHOICE" else '') + (m["name"] if m['name'] not in capitalize_first_letter else m['name'].title()).replace("-", "_") + '=nullptr;' for m in self.ignored_members if "optional" in m and m["optional"]]) + """
 }"""
@@ -84,8 +123,7 @@ class ASN1Choice:
         self.name = name
         self.definition = definition
         self.actual_type = definition['actual_type'] if 'actual_type' in definition else None
-        self.members = [m for m in definition["members"] if m is not None and m["type"] not in ["TimestampIts", "PhoneNumber", "OpeningDaysHours", "MessageFrame", "DescriptiveName", "RegionalExtension", "Iso3833VehicleType",
-                                                                                                "REG-EXT-ID-AND-TYPE.&id", "REG-EXT-ID-AND-TYPE.&Type", 'MESSAGE-ID-AND-TYPE.&id', 'MESSAGE-ID-AND-TYPE.&Type', 'PreemptPriorityList', "WMInumber", "VDS", "TemporaryID"] and m['name'] not in ['regional', 'shadowingApplies', 'expiryTime', 'validityDuration']]
+        self.members = [m for m in definition["members"] if m is not None and m["type"] not in ignore_member_types and m['name'] not in ignore_member_names]
         self.dependencies = [
             m for m in self.members if m["type"] not in default_types]
         self.parent_name = parent_name
@@ -215,7 +253,7 @@ void from_json_""" + self.name.replace("-", "_") + """(const json& j, """ + self
     """ + '\n    '.join(["bool " + m[0].replace("-", "_") + ";" for m in self.members]) + """
     """ + '\n    '.join(['j.at("' + m[0] + '").get_to(' + '(' + m[0].replace("-", "_") + '));' for m in self.members]) + """
     p_tmp->size = (""" + str(len(self.members)) + """ / 8) + 1;
-    p_tmp->bits_unused = 8 - (""" + str(len(self.members)) + """ % 8);
+    p_tmp->bits_unused = (""" + str(len(self.members)) + """ % 8) != 0 ? 8 - (""" + str(len(self.members)) + """ % 8) : 0;
     p_tmp->buf = (uint8_t *) calloc(1, sizeof(uint8_t) * p_tmp->size);
     """ + '\n    '.join(['*(p_tmp->buf + (sizeof(uint8_t) * ' + str(i) + ')) = (uint8_t) 0;' for i in range(int(len(self.members) / 8) + 1)]) + """
     """ + '\n    '.join(['if (' + m[0].replace("-", "_") + ') *(p_tmp->buf + (sizeof(uint8_t) * ' + str(int(int(m[1])/8)) + ')) |= (1 << ' + str(7 - (int(m[1]) % 8)) + ');' for m in self.members]) + """
