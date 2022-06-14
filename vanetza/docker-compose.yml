@@ -2,35 +2,46 @@ version: '2.4'
 services:
     autobu:
         hostname: obu
+        restart: always
         image: vanetza:test
+        cap_add:
+            - "NET_ADMIN"
         environment:
             - VANETZA_STATION_ID=1
             - VANETZA_STATION_TYPE=6
             - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:01
-            - VANETZA_INTERFACE=eth0
+            - VANETZA_INTERFACE=br0
             - START_EMBEDDED_MOSQUITTO=true
+            - SUPPORT_MAC_BLOCKING=true
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.10
         sysctls:      
-            kernel.msgmax:  16384
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
 
     carobu:
         hostname: obu
+        restart: always
         image: vanetza:test
+        cap_add:
+            - "NET_ADMIN"
         environment:
             - VANETZA_STATION_ID=2
             - VANETZA_STATION_TYPE=5
             - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:02
-            - VANETZA_INTERFACE=eth0
+            - VANETZA_INTERFACE=br0
             - START_EMBEDDED_MOSQUITTO=true
+            - SUPPORT_MAC_BLOCKING=true
+            - EMBEDDED_MOSQUITTO_PORT=1884
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.20
         sysctls:      
-            kernel.msgmax:  16384
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
             
     react:
         hostname: react
@@ -43,9 +54,10 @@ services:
         - '.:/app'
         - '/app/node_modules'
         ports:
-        - "3000:3000"
+        - "3000:80"
         environment:
         - CHOKIDAR_USEPOLLING=true
+           
             
 networks:
   vanetzalan0:
