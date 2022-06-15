@@ -14,7 +14,7 @@ with open('coco.names', 'r') as f:
     classes = f.read().splitlines()
 
 # Capture Video File 
-cap = cv2.VideoCapture('./videos/video3.mp4')
+cap = cv2.VideoCapture('./video3.mp4')
 # Video Stream
 # cap = cv2.VideoCapture(0)
 
@@ -58,7 +58,7 @@ while cap.isOpened():
             # cofidence of each eighty class object
             confidence = scores[class_id]
 
-            if confidence > 0.6:
+            if confidence > 0.8:
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
                 w = int(detection[2] * width)
