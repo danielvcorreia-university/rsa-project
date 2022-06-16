@@ -31,9 +31,9 @@ class Map extends React.Component {
             vehicles.currentData.forEach((vehicle) => {
                 // create a HTML element for each feature
                 var el = document.createElement('div');
-                if (vehicle.stationType == 5) {
+                if (vehicle.stationType === 5) {
                     el.className = 'Marker-car';
-                } else if (vehicle.stationType == 6) {
+                } else if (vehicle.stationType === 6) {
                     el.className = 'Marker-bus';
                 }
 

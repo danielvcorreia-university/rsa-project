@@ -3,7 +3,7 @@ services:
     autobu:
         hostname: obu
         restart: always
-        image: vanetza:test
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza
         cap_add:
             - "NET_ADMIN"
         environment:
@@ -27,7 +27,7 @@ services:
     carobu:
         hostname: obu
         restart: always
-        image: vanetza:test
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza
         cap_add:
             - "NET_ADMIN"
         environment:
@@ -46,7 +46,7 @@ services:
         sysctls:      
             kernel.msgmax:  65536
             kernel.msgmnb:  65536
-            
+
     react:
         hostname: react
         image: vanetza:react
@@ -54,18 +54,17 @@ services:
         depends_on:
         - autobu
         - carobu
-        volumes: 
+        volumes:
         - '.:/app'
         - '/app/node_modules'
         ports:
-        - "3000:3000"
+        - "3000:80"
         environment:
         - CHOKIDAR_USEPOLLING=true
         # networks:
         #     vanetzalan0:
         #         ipv4_address: 192.168.98.30
-           
-           
+             
 networks:
   vanetzalan0:
     external: true
