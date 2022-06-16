@@ -9,13 +9,19 @@ async def handler(websocket, path):
         data = [
             { 
               "stationType": 5,
+              "altitude": 0,
+              "heading": 3601,
               "longitude": -8.6632728,
-              "latitude": 40.6041953
+              "latitude": 40.6041953,
+              "speed": 10
             },
             { 
               "stationType": 6,
+              "altitude": 0,
+              "heading": 3601,
               "longitude": -8.6632728,
-              "latitude": 40.6031953
+              "latitude": 40.6031953,
+              "speed": 20
             }
         ]
         await websocket.send(json.dumps(data))

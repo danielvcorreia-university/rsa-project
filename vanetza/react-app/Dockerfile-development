@@ -1,0 +1,16 @@
+# pull official base image
+FROM node:14.16.1-alpine
+# set working directory
+WORKDIR /react-app
+# add `/react-app/node_modules/.bin` to $PATH
+ENV PATH /react-app/node_modules/.bin:$PATH
+# install react-app dependencies
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install --silent
+RUN npm install precompiled-mqtt@4.3.13 --silent
+
+# add react-app
+COPY . ./
+# start react-app
+CMD ["npm", "start"]
