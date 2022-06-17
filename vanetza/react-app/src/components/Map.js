@@ -21,8 +21,8 @@ class Map extends React.Component {
         const map = new mapboxgl.Map({
             container: this.mapContainer.current,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-8.6632728, 40.6041953],
-            zoom: 15
+            center: [-8.6632732, 40.6041934],
+            zoom: 17
         });
 
         var currentMarkers = [];
