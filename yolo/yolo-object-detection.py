@@ -47,6 +47,8 @@ while cap.isOpened():
     confidences = []
     # Predicted classes
     class_ids = []
+    # Predicted centers
+    centers = []
 
     # Looping over layers outputs
     for output in layerOutputs:
@@ -68,9 +70,10 @@ while cap.isOpened():
                 x = int(center_x - w / 2)
                 y = int(center_y - h / 2)
 
-                boxes.append([x, y, w, h, center_x])
+                boxes.append([x, y, w, h])
                 confidences.append((float(confidence)))
                 class_ids.append(class_id)
+                centers.append(center_x)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
@@ -82,7 +85,8 @@ while cap.isOpened():
     if len(indexes) > 0:
         for i in indexes.flatten():
             # Extract cordinate information back from boxes
-            x, y, w, h, c = boxes[i]
+            x, y, w, h = boxes[i]
+            c = centers[i]
             # Label is the name of class detected in the coco file names
             label = str(classes[class_ids[i]])
             if (label == 'car' and c < width/2) or label == 'person':
@@ -96,7 +100,7 @@ while cap.isOpened():
                 # Print object detected in terminal
                 print('%s (%d, %d)' % (label, x, y))
 
-    # cv2.imshow('Frame', img)
+    cv2.imshow('Frame', img)
     key = cv2.waitKey(1)
     # Verify if the escape key is up
     if key == 27:
