@@ -58,6 +58,8 @@ def video_process():
         confidences = []
         # Predicted classes
         class_ids = []
+        # Predicted centers
+        centers = []
 
         # Looping over layers outputs
         for output in layerOutputs:
@@ -79,9 +81,10 @@ def video_process():
                     x = int(center_x - w / 2)
                     y = int(center_y - h / 2)
 
-                    boxes.append([x, y, w, h, center_x])
+                    boxes.append([x, y, w, h])
                     confidences.append((float(confidence)))
                     class_ids.append(class_id)
+                    centers.append(center_x)
 
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
@@ -93,7 +96,8 @@ def video_process():
         if len(indexes) > 0:
             for i in indexes.flatten():
                 # Extract cordinate information back from boxes
-                x, y, w, h, c = boxes[i]
+                x, y, w, h = boxes[i]
+                c = centers[i]
                 # Label is the name of class detected in the coco file names
                 label = str(classes[class_ids[i]])
                 if (label == 'car' and c < width/2) or label == 'person':
