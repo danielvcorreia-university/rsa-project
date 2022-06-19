@@ -21,30 +21,38 @@ class Map extends React.Component {
         const map = new mapboxgl.Map({
             container: this.mapContainer.current,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-8.6632728, 40.6041953],
-            zoom: 15
+            center: [-8.6632732, 40.6041934],
+            zoom: 17
         });
 
         var currentMarkers = [];
 
         map.on('load', function() {
+
+            if (currentMarkers !== null) {
+                for (var i = currentMarkers.length - 1; i >= 0; i--) {
+                    currentMarkers[i].remove();
+                }
+            }
+
             vehicles.currentData.forEach((vehicle) => {
                 // create a HTML element for each feature
+                console.log([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
                 var el = document.createElement('div');
-                if (vehicle.stationType === 5) {
+                if (vehicle.fields.cam.camParameters.basicContainer.stationType === 5) {
                     el.className = 'Marker-car';
-                } else if (vehicle.stationType === 6) {
+                } else if (vehicle.fields.cam.camParameters.basicContainer.stationType === 6) {
                     el.className = 'Marker-bus';
                 }
 
                 var marker = new mapboxgl.Marker(el)
-                                        .setLngLat([vehicle.longitude, vehicle.latitude])
+                                        .setLngLat([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
                                         .setPopup(new mapboxgl.Popup( {offset: 30} )
-                                        .setHTML('<h4> Vehicle Info </h4> Latitude: ' + vehicle.latitude +
-                                                 '<br> Longitude: ' + vehicle.longitude +
-                                                 '<br> Altitude: ' + vehicle.altitude + ' (m)' +
-                                                 '<br> Speed: ' + vehicle.speed + ' (m/s)' +
-                                                 '<br> Heading: ' + vehicle.heading
+                                        .setHTML('<h4> Vehicle Info </h4> Latitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude +
+                                                 '<br> Longitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude +
+                                                 '<br> Altitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue + ' (m)' +
+                                                 '<br> Speed: ' + vehicle.fields.cam.camParameters.highFrequencyContainer.basicVehicleContainerHighFrequency.speed.speedValue + ' (m/s)' +
+                                                 '<br> Heading: ' + vehicle.fields.cam.camParameters.highFrequencyContainer.basicVehicleContainerHighFrequency.heading.headingValue
                                                  ))
                                         .addTo(map);
                 currentMarkers.push(marker);
@@ -52,18 +60,34 @@ class Map extends React.Component {
         });
 
         window.setInterval(function () {
-            let i = 0;
 
+            if (currentMarkers !== null) {
+                for (var i = currentMarkers.length - 1; i >= 0; i--) {
+                    currentMarkers[i].remove();
+                }
+            }
+            
             vehicles.currentData.forEach((vehicle) => {
-                currentMarkers[i].setLngLat([vehicle.longitude, vehicle.latitude]);
-                currentMarkers[i].setHTML('<h4> Vehicle Info </h4> Latitude: ' + vehicle.latitude +
-                '<br> Longitude: ' + vehicle.longitude +
-                '<br> Altitude: ' + vehicle.altitude + ' (m)' +
-                '<br> Speed: ' + vehicle.speed + ' (m/s)' +
-                '<br> Heading: ' + vehicle.heading
-                );
+                // create a HTML element for each feature
+                console.log([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
+                var el = document.createElement('div');
+                if (vehicle.fields.cam.camParameters.basicContainer.stationType === 5) {
+                    el.className = 'Marker-car';
+                } else if (vehicle.fields.cam.camParameters.basicContainer.stationType === 6) {
+                    el.className = 'Marker-bus';
+                }
 
-                i += 1;
+                var marker = new mapboxgl.Marker(el)
+                                        .setLngLat([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
+                                        .setPopup(new mapboxgl.Popup( {offset: 30} )
+                                        .setHTML('<h4> Vehicle Info </h4> Latitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude +
+                                                 '<br> Longitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude +
+                                                 '<br> Altitude: ' + vehicle.fields.cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue + ' (m)' +
+                                                 '<br> Speed: ' + vehicle.fields.cam.camParameters.highFrequencyContainer.basicVehicleContainerHighFrequency.speed.speedValue + ' (m/s)' +
+                                                 '<br> Heading: ' + vehicle.fields.cam.camParameters.highFrequencyContainer.basicVehicleContainerHighFrequency.heading.headingValue
+                                                 ))
+                                        .addTo(map);
+                currentMarkers.push(marker);
             });
         }, 1000);
     }
