@@ -68,7 +68,7 @@ while cap.isOpened():
                 x = int(center_x - w / 2)
                 y = int(center_y - h / 2)
 
-                boxes.append([x, y, w, h])
+                boxes.append([x, y, w, h, center_x])
                 confidences.append((float(confidence)))
                 class_ids.append(class_id)
 
@@ -82,10 +82,10 @@ while cap.isOpened():
     if len(indexes) > 0:
         for i in indexes.flatten():
             # Extract cordinate information back from boxes
-            x, y, w, h = boxes[i]
+            x, y, w, h, c = boxes[i]
             # Label is the name of class detected in the coco file names
             label = str(classes[class_ids[i]])
-            if label == 'car' or label == 'person':
+            if (label == 'car' and c < width/2) or label == 'person':
                 # Confidence of the object detected
                 confidence = str(round(confidences[i], 2))
                 # Pick a color for each object
@@ -96,7 +96,7 @@ while cap.isOpened():
                 # Print object detected in terminal
                 print('%s (%d, %d)' % (label, x, y))
 
-    #cv2.imshow('Frame', img)
+    # cv2.imshow('Frame', img)
     key = cv2.waitKey(1)
     # Verify if the escape key is up
     if key == 27:
