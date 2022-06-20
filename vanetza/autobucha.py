@@ -109,10 +109,9 @@ def video_process():
             id = 0
 
             f1 = open("new_cpm.json")
-            #f2 = open("object.json")
             lista = []
             Cmessage = json.load(f1)
-            #Pobject = json.load(f2)
+ 
 
             detected = 0
 
@@ -144,8 +143,6 @@ def video_process():
                         Pobject["objectConfidence"] = float(confidence)
                         Pobject["classification"][0]["confidence"] = float(confidence)
                         Pobject["classification"][0]["class"]["vehicle"]["confidence"] = float(confidence)
-                        print(confidence)
-                        print(Pobject)
                         lista.append(Pobject)
                         Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
                         
