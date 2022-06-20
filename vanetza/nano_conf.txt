@@ -1,0 +1,45 @@
+version: '2.2'
+services:
+    obu:
+        hostname: obu
+        restart: always
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza
+        cap_add:
+            - "NET_ADMIN"
+        environment:
+            - VANETZA_STATION_ID=3
+            - VANETZA_STATION_TYPE=5
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:02
+            - VANETZA_INTERFACE=wlan0
+            - VANETZA_CAM_PERIODICITY=0
+            - START_EMBEDDED_MOSQUITTO=true
+            - EMBEDDED_MOSQUITTO_PORT=1884
+            - VANETZA_MQTT_PORT=1884
+            - VANETZA_PROMETHEUS_PORT=4000
+            - SUPPORT_MAC_BLOCKING=false
+        network_mode: "host"
+        sysctls:
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
+
+    obu2:
+        hostname: obu2
+        restart: always
+        image: vanetza:test
+        cap_add:
+            - "NET_ADMIN"
+        environment:
+            - VANETZA_STATION_ID=4
+            - VANETZA_STATION_TYPE=5
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:02
+            - VANETZA_INTERFACE=wlan0
+            - VANETZA_CAM_PERIODICITY=0
+            - START_EMBEDDED_MOSQUITTO=true
+            - EMBEDDED_MOSQUITTO_PORT=3003
+            - VANETZA_MQTT_PORT=3003
+            - VANETZA_PROMETHEUS_PORT=4001
+            - SUPPORT_MAC_BLOCKING=false
+        network_mode: "host"
+        sysctls:
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536

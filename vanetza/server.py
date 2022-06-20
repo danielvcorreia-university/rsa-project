@@ -19,12 +19,14 @@ def task1 ( ):
     bus_mutex.acquire()
     bus_data = json.loads(msg.payload.decode('utf8'))
     bus_mutex.release()
+    print(msg.topic+" "+str(msg.payload))
     
   client = mqtt.Client()
   client.on_connect = on_connect
   client.on_message = on_message
 
-  client.connect("192.168.98.20", 1884, 60)
+  #client.connect("192.168.98.20", 1884, 60)
+  client.connect("10.42.0.36", 1884, 60)
 
   # Blocking call that processes network traffic, dispatches callbacks and
   # handles reconnecting.
@@ -53,7 +55,8 @@ def task2 ( ):
   client.on_connect = on_connect
   client.on_message = on_message
 
-  client.connect("192.168.98.10", 1883, 60)
+  #client.connect("192.168.98.10", 1883, 60)
+  client.connect("10.42.0.1", 30035, 60)
 
   # Blocking call that processes network traffic, dispatches callbacks and
   # handles reconnecting.

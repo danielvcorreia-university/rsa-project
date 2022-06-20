@@ -145,9 +145,9 @@ def video_process():
                         car_detected = 1
                         
                         Pobject["objectID"] = int(id)
-                        Pobject["objectConfidence"] = float(confidence)
-                        Pobject["classification"][0]["confidence"] = float(confidence)
-                        Pobject["classification"][0]["class"]["vehicle"]["confidence"] = float(confidence)
+                        Pobject["objectConfidence"] = float(confidence)*100
+                        Pobject["classification"][0]["confidence"] = float(confidence)*100
+                        Pobject["classification"][0]["class"]["vehicle"]["confidence"] = float(confidence)*100
                         lista.append(Pobject)
                         Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
                         
@@ -162,9 +162,9 @@ def video_process():
                         person_detected = 1
                         
                         Pobject["objectID"] = int(id)
-                        Pobject["objectConfidence"] = float(confidence)
-                        Pobject["classification"][0]["confidence"] = float(confidence)
-                        Pobject["classification"][0]["class"]["person"]["confidence"] = float(confidence)
+                        Pobject["objectConfidence"] = float(confidence)*100
+                        Pobject["classification"][0]["confidence"] = float(confidence)*100
+                        Pobject["classification"][0]["class"]["person"]["confidence"] = float(confidence)*100
                         lista.append(Pobject)
                         Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
                         
