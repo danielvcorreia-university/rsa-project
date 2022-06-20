@@ -11,6 +11,10 @@ stoped = 0
 
 #function to process videos to detect persons and cars
 def video_process():
+
+    # The callback for when the client receives a CONNACK response from the server.
+    def on_connect(client, userdata, flags, rc):
+        print("Connected with result code "+str(rc))
     
     # Load weights and configuration files to a network using OpenCV function
     net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
@@ -18,6 +22,11 @@ def video_process():
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
+    client = mqtt.Client()
+    client.on_connect = on_connect
+
+    client.connect("192.168.98.10", 1883, 60)
+    
     classes = []
 
     # Load network objects names trained 
@@ -94,6 +103,19 @@ def video_process():
         colors = np.random.uniform(0, 255, size=(len(boxes), 3))
 
         if len(indexes) > 0:
+
+            print("new detection-------------------------------------------------------------------------")
+
+            id = 0
+
+            f1 = open("new_cpm.json")
+            #f2 = open("object.json")
+            lista = []
+            Cmessage = json.load(f1)
+            #Pobject = json.load(f2)
+
+            detected = 0
+
             for i in indexes.flatten():
                 # Extract cordinate information back from boxes
                 x, y, w, h = boxes[i]
@@ -110,6 +132,30 @@ def video_process():
                     cv2.putText(img, label + " " + confidence, (x, y+20), font, 2, (255, 255, 255), 2)
                     # Print object detected in terminal
                     print('%s (%d, %d)' % (label, x, y))
+
+                    if (label == 'car'):
+
+                        f2 = open("object.json")
+                        Pobject = json.load(f2)
+
+                        detected = 1
+                        
+                        Pobject["objectID"] = int(id)
+                        Pobject["objectConfidence"] = float(confidence)
+                        Pobject["classification"][0]["confidence"] = float(confidence)
+                        Pobject["classification"][0]["class"]["vehicle"]["confidence"] = float(confidence)
+                        print(confidence)
+                        print(Pobject)
+                        lista.append(Pobject)
+                        Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
+                        
+                        id = id + 1
+            
+            if (detected == 1):
+                Cmessage["cpmParameters"]["perceivedObjectContainer"] = lista
+                print(Cmessage)
+                client.publish("vanetza/in/cpm", json.dumps(Cmessage))         
+
 
         # cv2.imshow('Frame', img)
         key = cv2.waitKey(1)

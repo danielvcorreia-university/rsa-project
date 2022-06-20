@@ -1,0 +1,84 @@
+{
+    "generationDeltaTime": 44258,
+    "cpmParameters": {
+        "managementContainer": {
+            "stationType": 6,
+            "referencePosition": {
+                "latitude": 40.6041932,
+                "longitude": -8.6632732,
+                "positionConfidenceEllipse": {
+                    "semiMajorConfidence": 4095,
+                    "semiMinorConfidence": 4095,
+                    "semiMajorOrientation": 0.0
+                },
+                "altitude": {
+                    "altitudeValue": 15.97,
+                    "altitudeConfidence": 14
+                }
+            }
+        },
+        "stationDataContainer": {
+            "originatingVehicleContainer": {
+                "heading": {
+                    "headingValue": 144.08803,
+                    "headingConfidence": 127
+                },
+                "speed": {
+                    "speedValue": 0,
+                    "speedConfidence": 127
+                },
+                "driveDirection": 0
+            }
+        },
+        "sensorInformationContainer": [
+            {
+                "sensorID": 1,
+                "type": 1,
+                "detectionArea": {
+                    "stationarySensorRectangle": {
+                        "semiMajorRangeLength": 750,
+                        "semiMinorRangeLength": 20,
+                        "semiMajorRangeOrientation": 3601
+                    }
+                }
+            },
+            {
+                "sensorID": 2,
+                "type": 12,
+                "detectionArea": {
+                    "stationarySensorRadial": {
+                        "range": 100,
+                        "stationaryHorizontalOpeningAngleStart": 3601,
+                        "stationaryHorizontalOpeningAngleEnd": 3601
+                    }
+                }
+            },
+            {
+                "sensorID": 3,
+                "type": 10,
+                "detectionArea": {
+                    "stationarySensorRadial": {
+                        "range": 100,
+                        "stationaryHorizontalOpeningAngleStart": 3601,
+                        "stationaryHorizontalOpeningAngleEnd": 3601
+                    }
+                }
+            },
+            {
+                "sensorID": 4,
+                "type": 11,
+                "detectionArea": {
+                    "stationarySensorRadial": {
+                        "range": 100,
+                        "stationaryHorizontalOpeningAngleStart": 3601,
+                        "stationaryHorizontalOpeningAngleEnd": 3601
+                    }
+                }
+            }
+        ],
+        "perceivedObjectContainer": [
+            
+        ],
+        "numberOfPerceivedObjects": 0
+    }
+}
