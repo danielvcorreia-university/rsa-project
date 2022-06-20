@@ -7,15 +7,15 @@
         "detectionTime": 1626453837.658,
         "referenceTime": 1626453837.658,
         "eventPosition": {
-            "latitude": 40.637799251415686,
-            "longitude": -8.652353364491056,
+            "latitude": 40.6041932,
+            "longitude": -8.6632732,
             "positionConfidenceEllipse": {
                 "semiMajorConfidence": 0,
                 "semiMinorConfidence": 0,
                 "semiMajorOrientation": 0
             },
             "altitude": {
-                "altitudeValue": 0,
+                "altitudeValue": 15.97,
                 "altitudeConfidence": 1
             }
         },

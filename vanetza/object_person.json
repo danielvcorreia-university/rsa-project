@@ -31,8 +31,8 @@
         {
             "confidence": 0,
             "class": {
-                "vehicle": {
-                    "type": 3,
+                "person": {
+                    "type": 1,
                     "confidence": 0
                 }
             }

@@ -115,6 +115,10 @@ def video_process():
 
             detected = 0
 
+            car_detected = 0
+
+            person_detected = 0
+
             for i in indexes.flatten():
                 # Extract cordinate information back from boxes
                 x, y, w, h = boxes[i]
@@ -138,6 +142,7 @@ def video_process():
                         Pobject = json.load(f2)
 
                         detected = 1
+                        car_detected = 1
                         
                         Pobject["objectID"] = int(id)
                         Pobject["objectConfidence"] = float(confidence)
@@ -147,11 +152,69 @@ def video_process():
                         Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
                         
                         id = id + 1
+
+                    if (label == 'person'):
+
+                        f2 = open("object_person.json")
+                        Pobject = json.load(f2)
+
+                        detected = 1
+                        person_detected = 1
+                        
+                        Pobject["objectID"] = int(id)
+                        Pobject["objectConfidence"] = float(confidence)
+                        Pobject["classification"][0]["confidence"] = float(confidence)
+                        Pobject["classification"][0]["class"]["person"]["confidence"] = float(confidence)
+                        lista.append(Pobject)
+                        Cmessage["cpmParameters"]["numberOfPerceivedObjects"] += 1
+                        
+                        id = id + 1
             
             if (detected == 1):
                 Cmessage["cpmParameters"]["perceivedObjectContainer"] = lista
                 print(Cmessage)
-                client.publish("vanetza/in/cpm", json.dumps(Cmessage))         
+                client.publish("vanetza/in/cpm", json.dumps(Cmessage))
+
+                if (person_detected==1):
+                    
+                    f3 = open("examples/in_denm.json")
+                    
+                    Dmessage = json.load(f3)
+
+                    Dmessage["management"]["stationType"] = 6
+
+                    Dmessage["management"]["validityDuration"] = 1
+
+                    Dmessage["management"]["actionID"]["originatingStationID"] = 1
+                    
+                    Dmessage["situation"]["eventType"]["causeCode"] = 12
+
+                    Dmessage["situation"]["eventType"]["subCauseCode"] = 12
+
+                    print(Dmessage)
+
+                    client.publish("vanetza/in/denm", json.dumps(Dmessage))
+
+                if (car_detected==1):
+                    
+                    f3 = open("examples/in_denm.json")
+                    
+                    Dmessage = json.load(f3)
+
+                    Dmessage["management"]["stationType"] = 6
+
+                    Dmessage["management"]["validityDuration"] = 1
+
+                    Dmessage["management"]["actionID"]["originatingStationID"] = 1
+                    
+                    Dmessage["situation"]["eventType"]["causeCode"] = 40
+
+                    Dmessage["situation"]["eventType"]["subCauseCode"] = 40
+
+                    print(Dmessage)
+
+                    client.publish("vanetza/in/denm", json.dumps(Dmessage))
+
 
 
         # cv2.imshow('Frame', img)
@@ -188,8 +251,6 @@ with open('bus_data.csv') as file_obj:
         f = open("examples/in_cam.json")
 
         f1 = open("examples/in_denm.json")
-
-        f2 = open("examples/in_cpm.json")
 
         #Building the message
         message = json.load(f)
