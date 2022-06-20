@@ -136,7 +136,7 @@ def video_process():
                     # Print object detected in terminal
                     print('%s (%d, %d)' % (label, x, y))
 
-                    if (label == 'car'):
+                    if (label == 'car' and stoped == 1):
 
                         f2 = open("object.json")
                         Pobject = json.load(f2)
@@ -195,7 +195,7 @@ def video_process():
 
                     client.publish("vanetza/in/denm", json.dumps(Dmessage))
 
-                if (car_detected==1):
+                if (car_detected==1 and stoped == 1):
                     
                     f3 = open("examples/in_denm.json")
                     
@@ -214,6 +214,8 @@ def video_process():
                     print(Dmessage)
 
                     client.publish("vanetza/in/denm", json.dumps(Dmessage))
+                
+                print('detecao ' + str(stoped))
 
 
 
@@ -302,7 +304,7 @@ with open('bus_data.csv') as file_obj:
 
         print(message)
 
-        print(stoped)
+        print('normal ' + str(stoped))
 
         #Sending the message
         client.publish("vanetza/in/cam", json.dumps(message))
