@@ -29,7 +29,7 @@
 }
 
 .Map-container {
-  height: 1080px;
+  height: 800px;
 }
 
 .Marker-car {
@@ -48,6 +48,25 @@
   height: 35px;
   border-radius: 35%;
   cursor: pointer;
+}
+
+.Marker-denm {
+  background-image: url('warning.png');
+  background-size: cover;
+  width: 35px;
+  height: 35px;
+  border-radius: 35%;
+  cursor: pointer;
+}
+
+.Table-container {
+  text-align: center;
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes App-logo-spin {

@@ -37,7 +37,6 @@ class Map extends React.Component {
 
             vehicles.currentData.forEach((vehicle) => {
                 // create a HTML element for each feature
-                console.log([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
                 var el = document.createElement('div');
                 if (vehicle.fields.cam.camParameters.basicContainer.stationType === 5) {
                     el.className = 'Marker-car';
@@ -69,7 +68,6 @@ class Map extends React.Component {
             
             vehicles.currentData.forEach((vehicle) => {
                 // create a HTML element for each feature
-                console.log([vehicle.fields.cam.camParameters.basicContainer.referencePosition.longitude, vehicle.fields.cam.camParameters.basicContainer.referencePosition.latitude])
                 var el = document.createElement('div');
                 if (vehicle.fields.cam.camParameters.basicContainer.stationType === 5) {
                     el.className = 'Marker-car';
